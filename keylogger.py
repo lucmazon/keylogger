@@ -215,12 +215,14 @@ def fetch_keys():
 
 
     # aggregate the pressed keys
+    display_key = ''
     pressed = []
     for i, k in enumerate(keypresses_raw):
         o = ord(k)
         if o:
             for byte,key in key_mapping.get(i, {}).iteritems():
                 if byte & o:
+                    display_key = key[0] if isinstance(key, tuple) else key
                     if isinstance(key, tuple): key = key[(shift or caps_lock_state) + alt]
                     pressed.append(key)
 
@@ -243,14 +245,14 @@ def fetch_keys():
         if value:
             active_modifiers.append(key)
 
-    return state_changed, active_modifiers, pressed
+    return state_changed, active_modifiers, pressed, display_key
 
 def log(done, callback, sleep_interval=.005):
     try:
         while not done():
             sleep(sleep_interval)
-            changed, modifiers, keys = fetch_keys()
-            if changed: callback(time(), modifiers, keys)
+            changed, modifiers, keys, display_key = fetch_keys()
+            if changed: callback(time(), modifiers, keys, display_key)
     except KeyboardInterrupt:
         done
 
@@ -259,6 +261,6 @@ def log(done, callback, sleep_interval=.005):
 if __name__ == "__main__":
     now = time()
     done = lambda: time() > now + 60
-    def print_keys(t, modifiers, keys): print "%.2f   %s\t\t%r" % (t, keys, modifiers)
+    def print_keys(t, modifiers, keys, display_key): print "%.2f   %s\t\t%r" % (t, keys, modifiers)
 
     log(done, print_keys)
