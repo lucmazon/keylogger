@@ -245,21 +245,20 @@ def fetch_keys():
 
     return state_changed, active_modifiers, pressed
 
-
-
-
 def log(done, callback, sleep_interval=.005):
-    while not done():
-        sleep(sleep_interval)
-        changed, modifiers, keys = fetch_keys()
-        if changed: callback(time(), modifiers, keys)
-
+    try:
+        while not done():
+            sleep(sleep_interval)
+            changed, modifiers, keys = fetch_keys()
+            if changed: callback(time(), modifiers, keys)
+    except KeyboardInterrupt:
+        done
 
 
 
 if __name__ == "__main__":
     now = time()
     done = lambda: time() > now + 60
-    def print_keys(t, modifiers, keys): print "%.2f   %s   %r" % (t, keys, modifiers)
+    def print_keys(t, modifiers, keys): print "%.2f   %s\t\t%r" % (t, keys, modifiers)
 
     log(done, print_keys)
