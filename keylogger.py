@@ -145,28 +145,16 @@ key_mapping = {
         0b00000010: "<3 num>",
         0b00000100: "<0 num>",
         0b00001000: "<. num>",
-        0b00010000: "115",
-        0b00100000: "116",
-        0b01000000: "117",
         0b10000000: "<f11>",
     },
     12: {
         0b00000001: "<f12>",
-        0b00000010: "122",
-        0b00000100: "123",
-        0b00001000: "124",
-        0b00010000: "125",
-        0b00100000: "126",
-        0b01000000: "127",
-        0b10000000: "128",
     },
     13: {
         #0b00000010: "<right ctrl>",
-        0b00000010: "132",
         0b00000100: "</ num>",
         0b00001000: "<print screen>",
         #0b00010000: "<right alt>",
-        0b00100000: "136",
         0b01000000: "<home>",
         0b10000000: "<up>",
     },
@@ -181,56 +169,13 @@ key_mapping = {
         0b10000000: "<del>",
     },
     15: {
-        0b00000001: "1",
-        0b00000010: "2",
-        0b00000100: "3",
-        0b00001000: "4",
-        0b00010000: "5",
-        0b00100000: "6",
-        0b01000000: "7",
         0b10000000: "<pause>",
     },
     16: {
-        0b00000001: "161",
-        0b00000010: "162",
-        0b00000100: "163",
-        0b00001000: "164",
-        0b00010000: "165",
         # 0b00100000: "<left super>",
         # 0b01000000: "<right super>",
         0b10000000: "<right click>",
-    },
-    17: {
-        0b00000001: "171",
-        0b00000010: "172",
-        0b00000100: "173",
-        0b00001000: "174",
-        0b00010000: "175",
-        0b00100000: "176",
-        0b01000000: "177",
-        0b10000000: "178",
-    },
-    18: {
-        0b00000001: "181",
-        0b00000010: "182",
-        0b00000100: "183",
-        0b00001000: "184",
-        0b00010000: "185",
-        0b00100000: "186",
-        0b01000000: "187",
-        0b10000000: "188",
-    },
-
-    # 15: {
-    #     0b00000001: "1",
-    #     0b00000010: "2",
-    #     0b00000100: "3",
-    #     0b00001000: "4",
-    #     0b00010000: "5",
-    #     0b00100000: "6",
-    #     0b01000000: "7",
-    #     0b10000000: "8",
-    # },
+    }
 }
 
 
@@ -293,7 +238,12 @@ def fetch_keys():
     state_changed = last_modifier_state and (state_changed or modifier_state != last_modifier_state)
     last_modifier_state = modifier_state
 
-    return state_changed, modifier_state, pressed
+    active_modifiers = []
+    for key, value in modifier_state.iteritems():
+        if value:
+            active_modifiers.append(key)
+
+    return state_changed, active_modifiers, pressed
 
 
 
@@ -310,6 +260,6 @@ def log(done, callback, sleep_interval=.005):
 if __name__ == "__main__":
     now = time()
     done = lambda: time() > now + 60
-    def print_keys(t, modifiers, keys): print "%.2f   %r   %r" % (t, keys, modifiers)
+    def print_keys(t, modifiers, keys): print "%.2f   %s   %r" % (t, keys, modifiers)
 
     log(done, print_keys)
