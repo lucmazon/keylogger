@@ -248,15 +248,10 @@ def fetch_keys():
     return state_changed, active_modifiers, pressed, display_key
 
 def log(done, callback, sleep_interval=.005):
-    try:
-        while not done():
-            sleep(sleep_interval)
-            changed, modifiers, keys, display_key = fetch_keys()
-            if changed: callback(time(), modifiers, keys, display_key)
-    except KeyboardInterrupt:
-        done
-
-
+    while not done():
+        sleep(sleep_interval)
+        changed, modifiers, keys, display_key = fetch_keys()
+        if changed: callback(time(), modifiers, keys, display_key)
 
 if __name__ == "__main__":
     now = time()

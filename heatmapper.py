@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from time import sleep
+from time import sleep, time, strftime
 import keylogger
-import time
 import json
 import atexit
 from os import path
@@ -20,15 +19,15 @@ parser.add_argument('--debug', action='store_true', help='debug mode')
 args = parser.parse_args()
 heatmap_output_file = args.output
 count = {}
-done = lambda: False
 
 #definitions
+@atexit.register
 def exit_handler():
-    print '\nStoring heatmap in: %s' % heatmap_output_file
     dump()
 
 def dump():
     with open(heatmap_output_file, 'w') as outfile:
+        print '\nStoring heatmap in: %s at date: %s' % (heatmap_output_file, strftime("%d/%m/%y %H:%M:%S"))
         json.dump(count, outfile, sort_keys=True, indent=4, separators=(',', ': '), ensure_ascii=False)
 
 def create_dict(count, key, list):
@@ -44,12 +43,18 @@ def update_count(t, modifiers, keys, display_key):
         create_dict(count, unicode(display_key), modifiers)
         if args.debug:
             print "key pressed: %s" %keys
-            dump()
 
 # MAIN
 if path.exists(heatmap_output_file):
     with open(heatmap_output_file, 'r') as input:
         count = json.load(input)
 
-atexit.register(exit_handler)
-keylogger.log(done, update_count)
+
+try:
+    while 1:
+        now = time()
+        done = lambda: time() > now + 60
+        keylogger.log(done, update_count)
+        dump()
+except KeyboardInterrupt:
+    print "exiting program"
