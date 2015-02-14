@@ -12,18 +12,24 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 parser = argparse.ArgumentParser(description='Creates a heatmap on multiple layers in JSON format.')
+parser.add_argument('mapper', help='the json file linking keycodes to their displayable counterparts')
 parser.add_argument('output', help='the output file to store the heatmap')
 parser.add_argument('--debug', action='store_true', help='debug mode')
 
 #init
 args = parser.parse_args()
 heatmap_output_file = args.output
+mapper_file = args.mapper
 count = {}
 
 #definitions
 @atexit.register
 def exit_handler():
     dump()
+
+def load_mapper():
+    with open(mapper_file, 'r') as f:
+        return json.load(f)
 
 def dump():
     with open(heatmap_output_file, 'w') as outfile:
@@ -38,17 +44,18 @@ def create_dict(count, key, list):
             count[list[0]] = {}
         create_dict(count[list[0]], key, list[1:])
 
-def update_count(t, modifiers, keys, display_key):
-    if keys:
-        create_dict(count, unicode(display_key), modifiers)
+def update_count(t, modifiers, display_key, chosen_key):
+    if display_key:
+        create_dict(count, unicode(chosen_key), modifiers)
         if args.debug:
-            print "key pressed: %s" %keys
+            print "key pressed: %s" %display_key
 
 # MAIN
 if path.exists(heatmap_output_file):
     with open(heatmap_output_file, 'r') as input:
         count = json.load(input)
 
+keylogger.set_mapper(load_mapper())
 
 try:
     while 1:
