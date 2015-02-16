@@ -116,13 +116,13 @@ def fetch_keys():
         if value:
             active_modifiers.append(key)
 
-    return state_changed, active_modifiers, pressed, display_key
+    return state_changed, active_modifiers, pressed, display_key, modifiers
 
 def log(done, callback, sleep_interval=.005):
     while not done():
         sleep(sleep_interval)
-        changed, modifiers, keys, display_key = fetch_keys()
-        if changed: callback(time(), modifiers, keys, display_key)
+        changed, active_modifiers, keys, display_key, modifiers = fetch_keys()
+        if changed: callback(time(), active_modifiers, keys, display_key, modifiers)
 
 if __name__ == "__main__":
     now = time()

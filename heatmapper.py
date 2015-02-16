@@ -20,7 +20,7 @@ parser.add_argument('--debug', action='store_true', help='debug mode')
 args = parser.parse_args()
 heatmap_output_file = args.output
 mapper_file = args.mapper
-count = {}
+heatmap_object = {'count' : {}, 'modifiers' : []}
 
 #definitions
 @atexit.register
@@ -34,19 +34,21 @@ def load_mapper():
 def dump():
     with open(heatmap_output_file, 'w') as outfile:
         print '\nStoring heatmap in: %s at date: %s' % (heatmap_output_file, strftime("%d/%m/%y %H:%M:%S"))
-        json.dump(count, outfile, sort_keys=True, indent=4, separators=(',', ': '), ensure_ascii=False)
+        json.dump(heatmap_object, outfile, sort_keys=True, indent=4, separators=(',', ': '), ensure_ascii=False)
 
-def create_dict(count, key, list):
+def create_dict(count, key, list, modifiers):
+    if modifiers:
+        heatmap_object['modifiers'] = modifiers.keys()
     if not list:
         count[key]= count.get(key, 0)+1
     else:
         if list[0] not in count:
             count[list[0]] = {}
-        create_dict(count[list[0]], key, list[1:])
+        create_dict(count[list[0]], key, list[1:], [])
 
-def update_count(t, modifiers, display_key, chosen_key):
+def update_count(t, active_modifiers, display_key, chosen_key, modifiers):
     if display_key:
-        create_dict(count, unicode(chosen_key), modifiers)
+        create_dict(heatmap_object['count'], unicode(chosen_key), active_modifiers, modifiers)
         if args.debug:
             print "key pressed: %s" %display_key
 
