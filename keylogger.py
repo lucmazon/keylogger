@@ -44,7 +44,7 @@ def set_mapper(mapper_source):
     mapper = mapper_source
 
 def keycode_to_keypress_tuple(keycode):
-    return (keycode/8, int(math.pow(2, keycode%8)))
+    return (keycode//8, int(math.pow(2, keycode%8)))
 
 def keypress_tuple_to_keycode(index, byte_value):
     return index*8 + int(math.log(byte_value, 2))
@@ -60,7 +60,7 @@ def fetch_keys():
 
     # check modifier states (ctrl, alt, shift keys)
     modifier_state = {}
-    for mod, keycode in modifiers.iteritems():
+    for mod, keycode in modifiers.items():
         keypress_tuple = keycode_to_keypress_tuple(keycode)
         modifier_state[mod] = bool(ord(keypresses_raw[keypress_tuple[0]]) & keypress_tuple[1])
     
@@ -86,7 +86,7 @@ def fetch_keys():
         o = ord(value)
         if o:
             keycode = keypress_tuple_to_keycode(index, o)
-            if str(keycode) in mapper and mapper[str(keycode)] not in modifiers.keys():
+            if str(keycode) in mapper and keycode not in modifiers.values():
                 key = mapper[str(keycode)]
                 display_key = key[0] if isinstance(key, list) else key
                 id = (shift or caps_lock_state) + altgr
@@ -112,7 +112,7 @@ def fetch_keys():
     last_modifier_state = modifier_state
 
     active_modifiers = []
-    for key, value in modifier_state.iteritems():
+    for key, value in modifier_state.items():
         if value:
             active_modifiers.append(key)
 
@@ -127,6 +127,6 @@ def log(done, callback, sleep_interval=.005):
 if __name__ == "__main__":
     now = time()
     done = lambda: time() > now + 60
-    def print_keys(t, modifiers, keys, display_key): print "%.2f   %s\t\t%r" % (t, keys, modifiers)
+    def print_keys(t, modifiers, keys, display_key): print("%.2f   %s\t\t%r".format(t, keys, modifiers))
 
     log(done, print_keys)
